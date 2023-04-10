@@ -1,0 +1,63 @@
+args<-commandArgs(TRUE)
+
+## input1: gene list file, input2: gene cluster file, input3: raw file
+input1=args[1];input2=args[2];input3=args[3];output=args[4]
+
+'%!in%' <- function(x,y)!('%in%'(x,y))
+genesvariants<-read.csv(input1, sep="\t", header=T)
+geneclusters<-read.csv(input2, sep="\t", header=T)
+genotypes<-read.csv(input3, sep=" ", header=T, check.names = F)
+casegenotypes <- genotypes[which(genotypes$PHENOTYPE == "2"),]
+controlgenotypes <- genotypes[which(genotypes$PHENOTYPE == "1"),]
+
+finaloutput<-data.frame()
+
+for(g in 1:nrow(geneclusters)){
+  cat(g)
+  cat("\n")
+  mygenes <- geneclusters[g,]
+  mygenes<-unlist(strsplit(mygenes,","))
+  
+  newdata <- genesvariants[genesvariants$gene %in% mygenes,]
+  
+  myvars<-newdata$var
+  myvars<- append("IID",myvars)
+#####counts for cases####  
+  newsubsetcases <- casegenotypes[myvars]
+  
+  homscases<-c()
+  hetscases<-c()
+  for(i in 2:ncol(newsubsetcases)){
+    for(j in 1:nrow(newsubsetcases)){
+      if(newsubsetcases[j,i]=="2"){
+        homscases<-append(newsubsetcases[j,1],homscases)
+      } else if(newsubsetcases[j,i]=="1"){
+        hetscases<-append(newsubsetcases[j,1],hetscases)
+      }
+    }
+  }
+  homscases <- unique(homscases)
+  hetscases <-unique(hetscases[hetscases %!in% homscases])
+ #######counts for controls ####### 
+  newsubsetcontols <- controlgenotypes[myvars]
+  
+  homscontrols<-c()
+  hetscontrols<-c()
+  for(i in 2:ncol(newsubsetcontols)){
+    for(j in 1:nrow(newsubsetcontols)){
+      if(newsubsetcontols[j,i]=="2"){
+        homscontrols<-append(newsubsetcontols[j,1],homscontrols)
+      } else if(newsubsetcontols[j,i]=="1"){
+        hetscontrols<-append(newsubsetcontols[j,1],hetscontrols)
+      }
+    }
+  }
+  homscontrols <- unique(homscontrols)
+  hetscontrols <-unique(hetscontrols[hetscontrols %!in% homscontrols])
+  
+  cluster<-paste(mygenes, collapse=";")
+  result<-cbind(length(homscases),length(hetscases), length(homscontrols), length(hetscontrols), cluster)
+  finaloutput<-rbind(result, finaloutput)
+}
+
+write.csv(finaloutput,output,quote = FALSE, row.names = F)
