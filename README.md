@@ -1,5 +1,5 @@
 # GeneCluster_HetHom
-Calculate the number of het/homs in a gene cluster
+To calculate the number of het/homs in a gene cluster
 
 Written for NHC results. Each sample is counted once even if it harbors more than one variant because NHC is a gene-based test.
 
