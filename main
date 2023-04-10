@@ -1,6 +1,6 @@
 args<-commandArgs(TRUE)
 
-## input1: gene list file, input2: gene cluster file, input3: raw file
+# input1: gene list file, input2: gene cluster file, input3: raw file
 input1=args[1];input2=args[2];input3=args[3];output=args[4]
 
 '%!in%' <- function(x,y)!('%in%'(x,y))
@@ -22,7 +22,7 @@ for(g in 1:nrow(geneclusters)){
   
   myvars<-newdata$var
   myvars<- append("IID",myvars)
-#####counts for cases####  
+  #####counts for cases####  
   newsubsetcases <- casegenotypes[myvars]
   
   homscases<-c()
@@ -38,7 +38,9 @@ for(g in 1:nrow(geneclusters)){
   }
   homscases <- unique(homscases)
   hetscases <-unique(hetscases[hetscases %!in% homscases])
+  
  #######counts for controls ####### 
+ 
   newsubsetcontols <- controlgenotypes[myvars]
   
   homscontrols<-c()
